@@ -12,6 +12,24 @@ A full stack task manager built with Node.js, React and PostgreSQL.
 - **Database:** PostgreSQL (Prisma Postgres)
 - **Deployment:** Vercel (frontend), Render (backend), Prisma Postgres (database)
 
+## Features
+
+- Register, log in and log out with JWT authentication
+- Create, view, edit and delete tasks (title, description, status, priority, due date)
+- Status summary cards that show task counts and filter the list
+- Search tasks by title
+- Task table sorted by due date, with a checkbox to mark a task as done
+- Each user only sees their own tasks
+- Responsive layout for desktop and mobile
+
+## Design
+
+- Warm off-white background (`#f5f4f0`) with a deep green accent (`#1f3a33`)
+- Inter typeface, small uppercase labels for sections and table headers
+- Flat bordered surfaces with a 4px corner radius, no shadows, gradients or icons
+- Status shown as tinted badges, priority as a coloured square next to its label
+- Design tokens are defined as CSS variables in `frontend/src/styles/global.css`
+
 ## Project structure
 
 ```
@@ -30,14 +48,19 @@ frontend/
   src/
     api/               HTTP client and API calls
     components/
-      atoms/           Button, Input, Select, Textarea, Label, Badge, Heading, Text, Spinner
-      molecules/       FormField, Alert, TaskFilters, StatusBadge, EmptyState
-      organisms/       Navbar, LoginForm, RegisterForm, TaskForm, TaskCard, TaskList, ConfirmDialog
+      atoms/           Button, Input, Select, Textarea, Label, Badge, Checkbox, Avatar,
+                       Heading, Text, Spinner
+      molecules/       FormField, SearchField, StatCard, StatusBadge, PriorityLabel,
+                       Alert, EmptyState
+      organisms/       Navbar, StatusSummary, TaskTable, TaskRow, TaskForm,
+                       LoginForm, RegisterForm, ConfirmDialog
       templates/       AuthTemplate, AppTemplate
     pages/             Login, Register, Tasks, TaskDetail, CreateTask, EditTask, NotFound
     context/           authentication state
     routes/            protected and guest route guards
     hooks/             data fetching hooks
+    constants/         task status and priority labels
+    styles/            global styles and design tokens
 ```
 
 ## API
