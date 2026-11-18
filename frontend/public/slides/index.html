@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taskboard: CRUD App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+* { margin: 0 }
+html, body { height: 100%; overflow: hidden; background: #141413; }
+body { font: 32px/1.2 'Inter', Arial, sans-serif; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
+#stage > section { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; display: none !important; }
+#stage > section.active { display: flex !important; }
+aside { display: none }
+p, li, h1, h2, h3, td, th { overflow-wrap: break-word; text-wrap: pretty }
+table { border-collapse: separate; border-spacing: 0; border: solid #0003; border-width: 2px 0 0 2px }
+th, td { padding: .35em .6em; text-align: left; border: solid #0003; border-width: 0 2px 2px 0 }
+th { font-weight: 600 }
+x-connector { display: block; position: relative; flex-shrink: 0; border-style: solid none none none !important; }
+x-connector::after { content: ''; position: absolute; right: -2px; top: -9px; border-left: 14px solid currentColor; border-top: 7.5px solid transparent; border-bottom: 7.5px solid transparent; }
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface-muted: #FAF9F6;
+  --ink: #1C1C1A;
+  --soft: #4A4944;
+  --muted: #6B6A64;
+  --line: #DCDAD3;
+  --line-soft: #EBE9E3;
+  --accent: #1F3A33;
+  --accent-soft: #E3EAE7;
+  --mint: #A9C7BC;
+  --light: #F5F4F0;
+  --info: #244A7C;
+  --info-soft: #E3EBF6;
+  --success: #24603A;
+  --success-soft: #E2EFE6;
+  --neutral-soft: #EFEDE7;
+  --high: #B3342A;
+  --medium: #B06D12;
+  --low: #7D7B74;
+}
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  color: #1C1C1A;
+}
+
+section {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  padding: 128px 128px 160px;
+  background: #F5F4F0;
+  color: #1C1C1A;
+  counter-increment: page;
+}
+
+section.dark {
+  justify-content: space-between;
+  padding: 128px;
+  background: #1F3A33;
+  color: #F5F4F0;
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.eyebrow {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #1F3A33;
+}
+
+.dark .eyebrow {
+  color: #A9C7BC;
+}
+
+.title {
+  font-size: 72px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.08;
+  color: #1C1C1A;
+}
+
+.dark .title {
+  color: #F5F4F0;
+}
+
+.lead {
+  font-size: 32px;
+  line-height: 1.45;
+  color: #4A4944;
+}
+
+.dark .lead {
+  color: #C9D6D1;
+}
+
+.foot {
+  position: absolute;
+  left: 128px;
+  bottom: 64px;
+  width: 1664px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.foot-text {
+  font-size: 24px;
+  color: #6B6A64;
+}
+
+
+
+.mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* cards */
+.row {
+  display: grid;
+  gap: 32px;
+}
+
+.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+.card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px;
+  background: #FFFFFF;
+  border: 2px solid #DCDAD3;
+  border-radius: 8px;
+  animation: rise 600ms ease both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+
+.card-label {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6B6A64;
+}
+
+.card-title {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #1C1C1A;
+}
+
+.card-text {
+  font-size: 26px;
+  line-height: 1.45;
+  color: #4A4944;
+}
+
+.step-num {
+  font-size: 44px;
+  font-weight: 700;
+  color: #1F3A33;
+}
+
+/* tables */
+.tbl {
+  width: 1664px;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 28px;
+  color: #1C1C1A;
+}
+
+.tbl-head {
+  background: #EBE9E3;
+}
+
+.tbl-alt {
+  background: #FAF9F6;
+}
+
+/* chips */
+.chip {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.chip-todo { background: #EFEDE7; color: #4A4944; }
+.chip-progress { background: #E3EBF6; color: #244A7C; }
+.chip-done { background: #E2EFE6; color: #24603A; }
+
+.dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+}
+
+.dot-high { background: #B3342A; }
+.dot-medium { background: #B06D12; }
+.dot-low { background: #7D7B74; }
+
+/* screenshots */
+.shot {
+  border: 2px solid #DCDAD3;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #FFFFFF;
+  animation: fade 700ms ease both;
+  animation-delay: 150ms;
+}
+
+.caption {
+  font-size: 24px;
+  color: #6B6A64;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+#notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 40vh; overflow: auto; padding: 18px 24px; background: rgba(20,20,19,.94); color: #F5F4F0; font: 17px/1.5 'Inter', Arial, sans-serif; display: none; z-index: 5; }
+#notes.show { display: block; }
+#hint { position: fixed; right: 16px; bottom: 12px; font: 13px 'Inter', Arial, sans-serif; color: #8a8880; z-index: 4; transition: opacity .6s; }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" class="dark" data-transition="fade">
+<p class="eyebrow">Node.js · React · PostgreSQL</p>
+<div class="head">
+<h1 style="font-size: 160px; font-weight: 700; letter-spacing: -4px; line-height: 1; color: #F5F4F0;">Taskboard</h1>
+<p class="lead" style="font-size: 44px; max-width: 1200px;">A full stack CRUD app with authentication, built with an MVC backend and an atomic React frontend.</p>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 2px solid #3A5A51; padding-top: 32px;">
+<p style="font-size: 32px; font-weight: 600; color: #F5F4F0;">Mengot Duran</p>
+<p style="font-size: 28px; color: #C9D6D1;">November 2026</p>
+</div>
+<aside>Introduce yourself and the project. Taskboard is a task manager: you sign up, log in, and create, edit and delete your own tasks. It was built to cover every point of the assignment: a Node.js MVC backend with authentication and CRUD, a React frontend with atomic components, PostgreSQL, and deployment on Vercel, Render and Prisma Postgres.</aside>
+</section>
+<section id="assignment">
+<div class="head">
+<p class="eyebrow">The assignment</p>
+<h2 class="title">Every requirement, and how it was met</h2>
+</div>
+<table class="tbl">
+<tr class="tbl-head"><th style="width: 34%;">Requirement</th><th style="width: 66%;">How Taskboard meets it</th></tr>
+<tr><td>Node app (MVC)</td><td>Express API split into models, controllers and routes</td></tr>
+<tr class="tbl-alt"><td>Authentication</td><td>Register and log in with hashed passwords and JWT tokens</td></tr>
+<tr><td>Simple CRUD</td><td>Create, read, update and delete tasks</td></tr>
+<tr class="tbl-alt"><td>Atomic React components</td><td>Atoms, molecules, organisms, templates and pages</td></tr>
+<tr><td>Design and page segregation</td><td>Custom design, seven separate pages with route guards</td></tr>
+<tr class="tbl-alt"><td>PostgreSQL</td><td>Prisma ORM with migrations on Prisma Postgres</td></tr>
+<tr><td>Deployment</td><td>Vercel (frontend), Render (backend), Prisma Postgres (database)</td></tr>
+</table>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>This slide maps the teacher’s list to what was built. Walk down the rows quickly; each one gets its own slide later. The point to land: nothing on the brief was skipped.</aside>
+</section>
+<section id="stack">
+<div class="head">
+<p class="eyebrow">Tech stack</p>
+<h2 class="title">Four layers, one language</h2>
+</div>
+<div class="row cols-4">
+<div class="card" style="--i: 0;">
+<p class="card-label">Frontend</p>
+<p class="card-title">React</p>
+<p class="card-text">Vite for the build, React Router for pages, plain CSS with design tokens.</p>
+</div>
+<div class="card" style="--i: 1;">
+<p class="card-label">Backend</p>
+<p class="card-title">Node.js</p>
+<p class="card-text">Express 5 REST API, JWT for sessions, bcrypt for password hashing.</p>
+</div>
+<div class="card" style="--i: 2;">
+<p class="card-label">Database</p>
+<p class="card-title">PostgreSQL</p>
+<p class="card-text">Prisma ORM for queries, schema and versioned migrations.</p>
+</div>
+<div class="card" style="--i: 3;">
+<p class="card-label">Hosting</p>
+<p class="card-title">Cloud</p>
+<p class="card-text">Vercel, Render and Prisma Postgres, all deployed from GitHub.</p>
+</div>
+</div>
+<p class="lead">JavaScript runs on both sides, so the frontend and backend share one language and one toolchain.</p>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>Four layers. React on the frontend, built with Vite. Node.js and Express on the backend. PostgreSQL as the database, accessed through Prisma. Everything is hosted in the cloud and deploys automatically from GitHub.</aside>
+</section>
+<section id="architecture">
+<div class="head">
+<p class="eyebrow">Architecture</p>
+<h2 class="title">How a request travels</h2>
+</div>
+<div style="display: flex; align-items: stretch; gap: 16px;">
+<div class="card" style="--i: 0; flex: 1;">
+<p class="card-label">Vercel</p>
+<p class="card-title">React app</p>
+<p class="card-text">Runs in the browser and stores the login token.</p>
+</div>
+<x-connector head="end" style="align-self: center; width: 64px; height: 0px; color: #1F3A33; border-width: 3px;"></x-connector>
+<div class="card" style="--i: 1; flex: 1;">
+<p class="card-label">Render</p>
+<p class="card-title">Express API</p>
+<p class="card-text">Checks the token, validates input, runs the logic.</p>
+</div>
+<x-connector head="end" style="align-self: center; width: 64px; height: 0px; color: #1F3A33; border-width: 3px;"></x-connector>
+<div class="card" style="--i: 2; flex: 1;">
+<p class="card-label">Inside the API</p>
+<p class="card-title">Prisma</p>
+<p class="card-text">Turns model calls into safe SQL queries.</p>
+</div>
+<x-connector head="end" style="align-self: center; width: 64px; height: 0px; color: #1F3A33; border-width: 3px;"></x-connector>
+<div class="card" style="--i: 3; flex: 1;">
+<p class="card-label">Prisma Postgres</p>
+<p class="card-title">PostgreSQL</p>
+<p class="card-text">Stores users and tasks in Frankfurt.</p>
+</div>
+</div>
+<p class="lead">The browser only ever talks to the API over HTTPS. The API is the only thing that talks to the database.</p>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>Follow one request left to right. The React app sends an HTTPS request with the JWT in the Authorization header. Express on Render checks the token and validates the input. Prisma turns the model call into SQL, and PostgreSQL on Prisma Postgres stores the data. The browser never touches the database directly, and CORS only allows requests from our Vercel domain.</aside>
+</section>
+<section id="mvc">
+<div class="head">
+<p class="eyebrow">Backend</p>
+<h2 class="title">MVC keeps each job in one place</h2>
+</div>
+<div class="row cols-2" style="align-items: start;">
+<div style="display: flex; flex-direction: column;">
+<div style="display: flex; gap: 32px; padding: 28px 32px; background: #FFFFFF; border: 2px solid #DCDAD3; border-radius: 8px 8px 0 0;">
+<p style="width: 220px; font-size: 30px; font-weight: 700; color: #1F3A33;">Routes</p>
+<p class="card-text" style="flex: 1;">Match the URL and method to a controller.</p>
+</div>
+<div style="display: flex; gap: 32px; padding: 28px 32px; background: #FFFFFF; border: 2px solid #DCDAD3; border-top: none;">
+<p style="width: 220px; font-size: 30px; font-weight: 700; color: #1F3A33;">Middleware</p>
+<p class="card-text" style="flex: 1;">Check the JWT and turn errors into clean JSON.</p>
+</div>
+<div style="display: flex; gap: 32px; padding: 28px 32px; background: #FFFFFF; border: 2px solid #DCDAD3; border-top: none;">
+<p style="width: 220px; font-size: 30px; font-weight: 700; color: #1F3A33;">Controllers</p>
+<p class="card-text" style="flex: 1;">Validate input, check ownership, send the response.</p>
+</div>
+<div style="display: flex; gap: 32px; padding: 28px 32px; background: #FFFFFF; border: 2px solid #DCDAD3; border-top: none; border-radius: 0 0 8px 8px;">
+<p style="width: 220px; font-size: 30px; font-weight: 700; color: #1F3A33;">Models</p>
+<p class="card-text" style="flex: 1;">The only layer that queries the database, through Prisma.</p>
+</div>
+</div>
+<div class="card" style="gap: 10px; background: #1F3A33; border-color: #1F3A33;">
+<p class="mono" style="font-size: 26px; font-weight: 500; color: #F5F4F0;">backend/src/</p>
+<p class="mono" style="font-size: 24px; color: #C9D6D1; padding-left: 36px;">routes/ <span style="color: #A9C7BC;">authRoutes, taskRoutes</span></p>
+<p class="mono" style="font-size: 24px; color: #C9D6D1; padding-left: 36px;">middleware/ <span style="color: #A9C7BC;">auth, errorHandler</span></p>
+<p class="mono" style="font-size: 24px; color: #C9D6D1; padding-left: 36px;">controllers/ <span style="color: #A9C7BC;">auth, task</span></p>
+<p class="mono" style="font-size: 24px; color: #C9D6D1; padding-left: 36px;">models/ <span style="color: #A9C7BC;">userModel, taskModel</span></p>
+<p class="mono" style="font-size: 24px; color: #C9D6D1; padding-left: 36px;">config/ <span style="color: #A9C7BC;">env, db</span></p>
+<p class="mono" style="font-size: 24px; color: #C9D6D1; padding-left: 36px;">app.js, server.js</p>
+<p class="mono" style="font-size: 26px; font-weight: 500; color: #F5F4F0; padding-top: 16px;">backend/prisma/</p>
+<p class="mono" style="font-size: 24px; color: #C9D6D1; padding-left: 36px;">schema.prisma, migrations/</p>
+</div>
+</div>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>The backend follows MVC. Routes only map URLs to controllers. Middleware runs before the controller: it checks the JWT and catches errors. Controllers hold the logic: they validate what the user sent and make sure the task belongs to them. Models are the only files that talk to the database. Since this is a JSON API, the View is the JSON response. Example: PUT /api/tasks/5 goes taskRoutes, then auth middleware, then taskController.update, then taskModel.update.</aside>
+</section>
+<section id="auth">
+<div class="head">
+<p class="eyebrow">Authentication</p>
+<h2 class="title">From sign-up to a protected request</h2>
+</div>
+<div class="row cols-4">
+<div class="card" style="--i: 0;">
+<p class="step-num">01</p>
+<p class="card-title" style="font-size: 36px;">Register</p>
+<p class="card-text">The password is hashed with bcrypt before it is saved. Plain text is never stored.</p>
+</div>
+<div class="card" style="--i: 1;">
+<p class="step-num">02</p>
+<p class="card-title" style="font-size: 36px;">Log in</p>
+<p class="card-text">The server compares the hash and returns a JWT signed with a secret, valid for 7 days.</p>
+</div>
+<div class="card" style="--i: 2;">
+<p class="step-num">03</p>
+<p class="card-title" style="font-size: 36px;">Send</p>
+<p class="card-text">React keeps the token and sends it as a Bearer header with every request.</p>
+</div>
+<div class="card" style="--i: 3;">
+<p class="step-num">04</p>
+<p class="card-title" style="font-size: 36px;">Protect</p>
+<p class="card-text">Middleware verifies the token. Every task query is filtered by the user’s id.</p>
+</div>
+</div>
+<p class="lead">Result: you only ever see, edit or delete your own tasks, even if you guess another task’s id.</p>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>Four steps. On register, bcrypt hashes the password, so even we can’t read it. On login, we compare the hash and return a JSON Web Token. The frontend stores it and sends it in the Authorization header. The auth middleware verifies it on every protected route and puts the user id on the request, and every query filters by that id. If someone tries another user’s task id, they get 404 Not found. On the frontend, route guards send logged-out users to the login page.</aside>
+</section>
+<section id="api">
+<div class="head">
+<p class="eyebrow">REST API</p>
+<h2 class="title">Eight endpoints cover everything</h2>
+</div>
+<table class="tbl">
+<tr class="tbl-head"><th style="width: 13%;">Method</th><th style="width: 33%;">Endpoint</th><th style="width: 14%;">Login</th><th style="width: 40%;">What it does</th></tr>
+<tr><td>POST</td><td>/api/auth/register</td><td>No</td><td>Create an account</td></tr>
+<tr class="tbl-alt"><td>POST</td><td>/api/auth/login</td><td>No</td><td>Log in and get a token</td></tr>
+<tr><td>GET</td><td>/api/auth/me</td><td>Yes</td><td>The current user</td></tr>
+<tr class="tbl-alt"><td>GET</td><td>/api/tasks</td><td>Yes</td><td>List your tasks</td></tr>
+<tr><td>POST</td><td>/api/tasks</td><td>Yes</td><td>Create a task</td></tr>
+<tr class="tbl-alt"><td>GET</td><td>/api/tasks/:id</td><td>Yes</td><td>Read one task</td></tr>
+<tr><td>PUT</td><td>/api/tasks/:id</td><td>Yes</td><td>Update a task</td></tr>
+<tr class="tbl-alt"><td>DELETE</td><td>/api/tasks/:id</td><td>Yes</td><td>Delete a task</td></tr>
+</table>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>The whole API is eight endpoints. Three for auth, five for tasks, which map directly onto Create, Read, Update and Delete. Everything except register and login needs a valid token. Errors come back as JSON with a clear message and the right status code: 400 for bad input, 401 for no login, 404 for a task that isn’t yours or doesn’t exist.</aside>
+</section>
+<section id="schema">
+<div class="head">
+<p class="eyebrow">Database</p>
+<h2 class="title">Two tables, one relationship</h2>
+</div>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1fr); align-items: start;">
+<div class="card" style="--i: 0; gap: 0; padding: 32px 40px;">
+<p class="card-title" style="font-size: 36px; padding-bottom: 20px;">User</p>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">id</p><p style="font-size: 24px; color: #6B6A64;">Int, primary key</p></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">name</p><p style="font-size: 24px; color: #6B6A64;">String</p></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">email</p><p style="font-size: 24px; color: #6B6A64;">String, unique</p></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">password</p><p style="font-size: 24px; color: #6B6A64;">String, bcrypt hash</p></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">createdAt</p><p style="font-size: 24px; color: #6B6A64;">DateTime</p></div>
+<div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">updatedAt</p><p style="font-size: 24px; color: #6B6A64;">DateTime</p></div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 140px;">
+<p style="font-size: 28px; font-weight: 700; color: #1F3A33;">1 to many</p>
+<x-connector head="end" style="width: 140px; height: 0px; color: #1F3A33; border-width: 3px;"></x-connector>
+<p style="font-size: 24px; color: #6B6A64; text-align: center; width: 180px;">one user, many tasks</p>
+</div>
+<div class="card" style="--i: 1; gap: 0; padding: 32px 40px;">
+<p class="card-title" style="font-size: 36px; padding-bottom: 20px;">Task</p>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">id</p><p style="font-size: 24px; color: #6B6A64;">Int, primary key</p></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">title</p><p style="font-size: 24px; color: #6B6A64;">String</p></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">description</p><p style="font-size: 24px; color: #6B6A64;">String, optional</p></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">status</p><p style="font-size: 24px; color: #6B6A64;">To do, In progress, Done</p></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">priority</p><p style="font-size: 24px; color: #6B6A64;">Low, Medium, High</p></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">dueDate</p><p style="font-size: 24px; color: #6B6A64;">DateTime, optional</p></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">userId</p><p style="font-size: 24px; color: #6B6A64;">links to User</p></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #EBE9E3;"><p class="mono" style="font-size: 24px; color: #1C1C1A;">createdAt, updatedAt</p><p style="font-size: 24px; color: #6B6A64;">DateTime</p></div>
+</div>
+</div>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>The schema is defined in schema.prisma and applied with Prisma migrations, so the database structure is versioned in Git. One user has many tasks; each task belongs to one user through userId. Deleting a user also deletes their tasks (cascade). Status and priority are enums, so the database itself rejects invalid values. Email is unique, so two accounts can’t share one.</aside>
+</section>
+<section id="atomic">
+<div class="head">
+<p class="eyebrow">Frontend</p>
+<h2 class="title">Atomic design: small parts build big ones</h2>
+</div>
+<div class="row cols-5" style="align-items: stretch;">
+<div class="card" style="--i: 0; gap: 10px; padding: 32px;">
+<p class="card-label">Level 1</p>
+<p class="card-title" style="font-size: 36px; padding-bottom: 8px;">Atoms</p>
+<p class="card-text" style="font-size: 24px;">Button</p>
+<p class="card-text" style="font-size: 24px;">Input, Select</p>
+<p class="card-text" style="font-size: 24px;">Checkbox</p>
+<p class="card-text" style="font-size: 24px;">Badge, Avatar</p>
+<p class="card-text" style="font-size: 24px;">Heading, Text</p>
+<p class="card-text" style="font-size: 24px;">Spinner</p>
+</div>
+<div class="card" style="--i: 1; gap: 10px; padding: 32px;">
+<p class="card-label">Level 2</p>
+<p class="card-title" style="font-size: 36px; padding-bottom: 8px;">Molecules</p>
+<p class="card-text" style="font-size: 24px;">FormField</p>
+<p class="card-text" style="font-size: 24px;">SearchField</p>
+<p class="card-text" style="font-size: 24px;">StatCard</p>
+<p class="card-text" style="font-size: 24px;">StatusBadge</p>
+<p class="card-text" style="font-size: 24px;">PriorityLabel</p>
+<p class="card-text" style="font-size: 24px;">Alert</p>
+<p class="card-text" style="font-size: 24px;">EmptyState</p>
+</div>
+<div class="card" style="--i: 2; gap: 10px; padding: 32px;">
+<p class="card-label">Level 3</p>
+<p class="card-title" style="font-size: 36px; padding-bottom: 8px;">Organisms</p>
+<p class="card-text" style="font-size: 24px;">Navbar</p>
+<p class="card-text" style="font-size: 24px;">StatusSummary</p>
+<p class="card-text" style="font-size: 24px;">TaskTable</p>
+<p class="card-text" style="font-size: 24px;">TaskRow</p>
+<p class="card-text" style="font-size: 24px;">TaskForm</p>
+<p class="card-text" style="font-size: 24px;">Login, Register</p>
+<p class="card-text" style="font-size: 24px;">ConfirmDialog</p>
+</div>
+<div class="card" style="--i: 3; gap: 10px; padding: 32px;">
+<p class="card-label">Level 4</p>
+<p class="card-title" style="font-size: 36px; padding-bottom: 8px;">Templates</p>
+<p class="card-text" style="font-size: 24px;">AuthTemplate</p>
+<p class="card-text" style="font-size: 24px;">AppTemplate</p>
+</div>
+<div class="card" style="--i: 4; gap: 10px; padding: 32px; background: #1F3A33; border-color: #1F3A33;">
+<p class="card-label" style="color: #A9C7BC;">Level 5</p>
+<p class="card-title" style="font-size: 36px; padding-bottom: 8px; color: #F5F4F0;">Pages</p>
+<p class="card-text" style="font-size: 24px; color: #C9D6D1;">Login</p>
+<p class="card-text" style="font-size: 24px; color: #C9D6D1;">Register</p>
+<p class="card-text" style="font-size: 24px; color: #C9D6D1;">Tasks</p>
+<p class="card-text" style="font-size: 24px; color: #C9D6D1;">Task detail</p>
+<p class="card-text" style="font-size: 24px; color: #C9D6D1;">Create, Edit</p>
+<p class="card-text" style="font-size: 24px; color: #C9D6D1;">Not found</p>
+</div>
+</div>
+<p class="lead">Each level only uses the levels before it. Pages live in their own folder and just put templates and organisms together.</p>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>Atomic design, from Brad Frost. Atoms are the smallest parts, like a Button or an Input. Molecules combine atoms: a FormField is a Label plus an Input plus an error message. Organisms are full sections: the TaskTable is built from TaskRows, which use Checkbox, StatusBadge and Button. Templates set the page layout, and pages fill templates with real data. That’s also our page segregation: every screen is its own file in the pages folder, and route guards decide who can open it.</aside>
+</section>
+<section id="design">
+<div class="head">
+<p class="eyebrow">Design</p>
+<h2 class="title">Calm, flat and easy to scan</h2>
+</div>
+<div class="row cols-2" style="align-items: stretch;">
+<div class="card" style="--i: 0; gap: 28px;">
+<p class="card-label">Colour</p>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px;">
+<div style="display: flex; flex-direction: column; gap: 10px;"><div style="box-sizing: border-box; height: 120px; background: #F5F4F0; border: 2px solid #DCDAD3; border-radius: 6px;"></div><p style="font-size: 24px; font-weight: 600;">Page</p><p class="mono" style="font-size: 24px; color: #6B6A64;">F5F4F0</p></div>
+<div style="display: flex; flex-direction: column; gap: 10px;"><div style="box-sizing: border-box; height: 120px; background: #FFFFFF; border: 2px solid #DCDAD3; border-radius: 6px;"></div><p style="font-size: 24px; font-weight: 600;">Card</p><p class="mono" style="font-size: 24px; color: #6B6A64;">FFFFFF</p></div>
+<div style="display: flex; flex-direction: column; gap: 10px;"><div style="height: 120px; background: #1C1C1A; border-radius: 6px;"></div><p style="font-size: 24px; font-weight: 600;">Text</p><p class="mono" style="font-size: 24px; color: #6B6A64;">1C1C1A</p></div>
+<div style="display: flex; flex-direction: column; gap: 10px;"><div style="height: 120px; background: #1F3A33; border-radius: 6px;"></div><p style="font-size: 24px; font-weight: 600;">Accent</p><p class="mono" style="font-size: 24px; color: #6B6A64;">1F3A33</p></div>
+<div style="display: flex; flex-direction: column; gap: 10px;"><div style="height: 120px; background: #DCDAD3; border-radius: 6px;"></div><p style="font-size: 24px; font-weight: 600;">Border</p><p class="mono" style="font-size: 24px; color: #6B6A64;">DCDAD3</p></div>
+</div>
+<p class="card-label" style="padding-top: 8px;">Status and priority</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+<p class="chip chip-todo">To do</p>
+<p class="chip chip-progress">In progress</p>
+<p class="chip chip-done">Done</p>
+</div>
+<div style="display: flex; gap: 32px; align-items: center;">
+<div style="display: flex; gap: 12px; align-items: center;"><div class="dot dot-high"></div><p style="font-size: 24px; color: #3F3E3A;">High</p></div>
+<div style="display: flex; gap: 12px; align-items: center;"><div class="dot dot-medium"></div><p style="font-size: 24px; color: #3F3E3A;">Medium</p></div>
+<div style="display: flex; gap: 12px; align-items: center;"><div class="dot dot-low"></div><p style="font-size: 24px; color: #3F3E3A;">Low</p></div>
+</div>
+</div>
+<div class="card" style="--i: 1; gap: 28px;">
+<p class="card-label">Type and shape</p>
+<p style="font-size: 96px; font-weight: 700; letter-spacing: -2px; line-height: 1;">Inter</p>
+<p style="font-size: 24px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #6B6A64;">Small uppercase labels</p>
+<div style="display: flex; flex-direction: column; gap: 14px; padding-top: 8px; border-top: 2px solid #EBE9E3;">
+<p class="card-text">Flat bordered surfaces with a 4px corner radius</p>
+<p class="card-text">No gradients, no shadows, no icons</p>
+<p class="card-text">Colours stored once as CSS variables</p>
+<p class="card-text">Works on phones as well as desktop</p>
+</div>
+</div>
+</div>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>The design is intentionally quiet. A warm off-white page, white cards, near-black text and one deep green accent. Status uses tinted badges and priority a small coloured square, and both always show the word too, so colour is never the only signal. Every colour is a CSS variable in global.css, so the whole look can change in one file. The layout adapts to mobile: count cards go two per row and table rows become stacked cards.</aside>
+</section>
+<section id="tasks-page" style="flex-direction: row; gap: 64px; align-items: center;">
+<div style="width: 560px; display: flex; flex-direction: column; gap: 40px;">
+<div class="head">
+<p class="eyebrow">The app</p>
+<h2 class="title">The tasks page</h2>
+</div>
+<div style="display: flex; flex-direction: column; gap: 24px;">
+<p class="card-text" style="padding-top: 20px; border-top: 2px solid #1F3A33;">Count cards show each status and filter the list with one click.</p>
+<p class="card-text" style="padding-top: 20px; border-top: 2px solid #DCDAD3;">Search by title, sorted by due date.</p>
+<p class="card-text" style="padding-top: 20px; border-top: 2px solid #DCDAD3;">Tick the checkbox to mark a task done. It saves straight away.</p>
+</div>
+</div>
+<img class="shot" src="tasks.png" alt="Taskboard tasks page with four status count cards, a search box and a table of five tasks" style="width: 1040px; height: 731px;">
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>This is the main screen. The four cards at the top count tasks by status, and clicking one filters the table. The search box filters by title as you type. Each row shows status, priority and due date, with Edit and Delete. The checkbox marks a task done and sends a PUT request immediately; done tasks are crossed out.</aside>
+</section>
+<section id="screens">
+<div class="head">
+<p class="eyebrow">The app</p>
+<h2 class="title">Every screen, desktop and mobile</h2>
+</div>
+<div style="display: flex; gap: 48px; align-items: flex-start;">
+<div style="display: flex; flex-direction: column; gap: 16px;">
+<img class="shot" src="login.png" alt="Log in page with email and password fields" style="width: 675px; height: 453px;">
+<p class="caption">Log in, with a separate sign-up page</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px;">
+<img class="shot" src="detail.png" alt="Task detail page showing description, status, priority and dates" style="width: 675px; height: 453px;">
+<p class="caption">Task detail, with Edit and Delete</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px;">
+<img class="shot" src="mobile.png" alt="Tasks page on a phone, with cards two per row and stacked task rows" style="width: 218px; height: 560px;">
+<p class="caption">Phone</p>
+</div>
+</div>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>The other screens. Log in and sign up share the auth template. The task detail page shows everything about one task, with Edit and Delete; delete asks for confirmation first. On a phone the same pages reflow: count cards two per row and each task becomes a stacked card. The create and edit forms share one TaskForm component.</aside>
+</section>
+<section id="deploy">
+<div class="head">
+<p class="eyebrow">Deployment</p>
+<h2 class="title">Three services, deployed from GitHub</h2>
+</div>
+<div class="row cols-3">
+<div class="card" style="--i: 0;">
+<p class="card-label">Frontend</p>
+<p class="card-title">Vercel</p>
+<p class="mono" style="font-size: 24px; color: #1F3A33;">crudapp-black.vercel.app</p>
+<p class="card-text">Builds the React app from the frontend folder and serves it worldwide.</p>
+</div>
+<div class="card" style="--i: 1;">
+<p class="card-label">Backend</p>
+<p class="card-title">Render</p>
+<p class="mono" style="font-size: 24px; color: #1F3A33;">crudapp-xp2l.onrender.com</p>
+<p class="card-text">Runs the Express API. Each build also applies database migrations.</p>
+</div>
+<div class="card" style="--i: 2;">
+<p class="card-label">Database</p>
+<p class="card-title">Prisma Postgres</p>
+<p class="mono" style="font-size: 24px; color: #1F3A33;">eu-central-1, Frankfurt</p>
+<p class="card-text">Managed PostgreSQL in the same region as the API.</p>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 24px;">
+<p class="mono" style="padding: 14px 24px; background: #1F3A33; color: #F5F4F0; font-size: 24px; border-radius: 6px;">git push</p>
+<x-connector head="end" style="width: 80px; height: 0px; color: #1F3A33; border-width: 3px;"></x-connector>
+<p style="padding: 14px 24px; background: #FFFFFF; border: 2px solid #DCDAD3; font-size: 24px; font-weight: 600; border-radius: 6px;">GitHub</p>
+<x-connector head="end" style="width: 80px; height: 0px; color: #1F3A33; border-width: 3px;"></x-connector>
+<p style="padding: 14px 24px; background: #FFFFFF; border: 2px solid #DCDAD3; font-size: 24px; font-weight: 600; border-radius: 6px;">Vercel and Render redeploy automatically</p>
+</div>
+<div class="foot"><p class="foot-text">Taskboard · CRUD app</p><p class="foot-text num"></p></div>
+<aside>Exactly as the brief asked: Vercel for the frontend, Render for the backend, Prisma Postgres for the database. Secrets like the database URL and JWT secret live in each service’s environment variables, never in the code. CORS on the API only accepts the Vercel domain. A push to main redeploys everything automatically. Note: Render’s free plan sleeps when idle, so the first request can take up to a minute.</aside>
+</section>
+<section id="closing" class="dark">
+<p class="eyebrow">Live demo</p>
+<div class="head">
+<h2 style="font-size: 140px; font-weight: 700; letter-spacing: -3px; line-height: 1; color: #F5F4F0;">Thank you</h2>
+<p class="lead" style="font-size: 44px;">Questions?</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; border-top: 2px solid #3A5A51; padding-top: 32px;">
+<div style="display: flex; flex-direction: column; gap: 8px;"><p class="eyebrow">App</p><p class="mono" style="font-size: 26px; color: #F5F4F0;">crudapp-black.vercel.app</p></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><p class="eyebrow">Code</p><p class="mono" style="font-size: 26px; color: #F5F4F0;">github.com/mengotduran/crudapp</p></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><p class="eyebrow">API</p><p class="mono" style="font-size: 26px; color: #F5F4F0;">crudapp-xp2l.onrender.com/api</p></div>
+</div>
+<aside>Switch to the live app for the demo. Open it a minute early so the Render backend is awake. Suggested order: log in, create a task, tick it done, edit it, filter with the count cards, search, then delete with the confirmation. To show authentication, log out and log in as a second account: the first account’s tasks are not there. Then take questions.</aside>
+</section>
+</div>
+<div id="notes"></div>
+<div id="hint">Arrow keys to move · F full screen · N notes</div>
+<script>
+const slides = [...document.querySelectorAll('#stage > section')];
+const stage = document.getElementById('stage');
+const notes = document.getElementById('notes');
+let current = 0;
+slides.forEach((s, i) => s.querySelectorAll('.num').forEach(n => n.textContent = i + 1));
+function fit() {
+  const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
+  stage.style.transform = `scale(${scale}) translate(-50%, -50%)`;
+}
+function show(i) {
+  current = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle('active', k === current));
+  const aside = slides[current].querySelector('aside');
+  notes.textContent = aside ? aside.textContent : '';
+  history.replaceState(null, '', '#' + (current + 1));
+}
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); show(current + 1); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); show(current - 1); }
+  else if (e.key === 'Home') show(0);
+  else if (e.key === 'End') show(slides.length - 1);
+  else if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+  else if (e.key === 'n' || e.key === 'N') notes.classList.toggle('show');
+});
+addEventListener('click', e => { if (!notes.contains(e.target)) show(current + (e.clientX < innerWidth / 3 ? -1 : 1)); });
+addEventListener('resize', fit);
+setTimeout(() => document.getElementById('hint').style.opacity = 0, 4000);
+fit();
+show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>
