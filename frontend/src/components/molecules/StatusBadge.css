@@ -1,0 +1,26 @@
+.priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-soft);
+}
+
+.priority__dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.priority__dot--high {
+  background: var(--color-priority-high);
+}
+
+.priority__dot--medium {
+  background: var(--color-priority-medium);
+}
+
+.priority__dot--low {
+  background: var(--color-priority-low);
+}

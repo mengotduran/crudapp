@@ -5,6 +5,7 @@ import RegisterForm from '../components/organisms/RegisterForm';
 export default function RegisterPage() {
   return (
     <AuthTemplate
+      eyebrow="Sign up"
       title="Create an account"
       subtitle="Start organizing your work in minutes."
       footer={

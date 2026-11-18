@@ -10,8 +10,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 960px;
-  height: 60px;
+  gap: 16px;
+  max-width: 1040px;
+  height: 64px;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -19,11 +20,12 @@
 .navbar__brand {
   font-size: 17px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.2px;
   color: var(--color-text);
 }
 
 .navbar__brand:hover {
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -33,9 +35,20 @@
   gap: 14px;
 }
 
+.navbar__profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .navbar__name {
   font-size: 14px;
-  color: var(--color-text-muted);
+  color: var(--color-neutral);
+}
+
+.navbar__user .btn {
+  height: 36px;
+  padding: 0 14px;
 }
 
 @media (max-width: 480px) {

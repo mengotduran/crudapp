@@ -19,6 +19,7 @@ export default function EditTaskPage() {
 
   return (
     <AppTemplate
+      eyebrow="Tasks"
       title="Edit task"
       subtitle="Update the details and save your changes."
       back={<Link to={`/tasks/${id}`}>Back to task</Link>}

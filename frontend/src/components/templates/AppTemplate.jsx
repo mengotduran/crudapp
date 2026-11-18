@@ -3,7 +3,15 @@ import Heading from '../atoms/Heading';
 import Text from '../atoms/Text';
 import './AppTemplate.css';
 
-export default function AppTemplate({ title, subtitle, actions, back, narrow = false, children }) {
+export default function AppTemplate({
+  eyebrow,
+  title,
+  subtitle,
+  actions,
+  back,
+  narrow = false,
+  children,
+}) {
   return (
     <div className="app-layout">
       <Navbar />
@@ -11,6 +19,7 @@ export default function AppTemplate({ title, subtitle, actions, back, narrow = f
         {back && <div className="app-layout__back">{back}</div>}
         <header className="app-layout__header">
           <div className="app-layout__titles">
+            {eyebrow && <p className="eyebrow">{eyebrow}</p>}
             <Heading level={1}>{title}</Heading>
             {subtitle && <Text muted>{subtitle}</Text>}
           </div>

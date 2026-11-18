@@ -1,28 +1,32 @@
 :root {
-  --color-bg: #f6f6f4;
+  --color-bg: #f5f4f0;
   --color-surface: #ffffff;
-  --color-border: #e4e4e0;
-  --color-border-strong: #cfcfc9;
+  --color-surface-muted: #faf9f6;
+  --color-border: #dcdad3;
+  --color-border-soft: #ebe9e3;
+  --color-border-strong: #cfccc3;
   --color-text: #1c1c1a;
-  --color-text-muted: #6b6b66;
-  --color-primary: #1f3d36;
-  --color-primary-hover: #15302a;
-  --color-primary-soft: #e6eeeb;
-  --color-danger: #b42318;
-  --color-danger-hover: #912018;
-  --color-danger-soft: #fdecea;
-  --color-success-soft: #e7f3ec;
-  --color-success: #1e6b3f;
-  --color-warning-soft: #fdf3e1;
-  --color-warning: #8a5a0b;
-  --color-info-soft: #e8eef8;
-  --color-info: #274a85;
+  --color-text-soft: #3f3e3a;
+  --color-text-muted: #6b6a64;
+  --color-placeholder: #8a8880;
+  --color-primary: #1f3a33;
+  --color-primary-hover: #142a24;
+  --color-primary-soft: #e3eae7;
+  --color-hover: #efede7;
+  --color-danger: #9b2c24;
+  --color-danger-hover: #7f231d;
+  --color-danger-soft: #f8e4e1;
+  --color-success: #24603a;
+  --color-success-soft: #e2efe6;
+  --color-info: #244a7c;
+  --color-info-soft: #e3ebf6;
+  --color-neutral: #4a4944;
+  --color-neutral-soft: #efede7;
+  --color-priority-high: #b3342a;
+  --color-priority-medium: #b06d12;
+  --color-priority-low: #7d7b74;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --shadow-sm: 0 1px 2px rgba(20, 20, 18, 0.06);
-  --shadow-md: 0 8px 24px rgba(20, 20, 18, 0.08);
+  --radius: 4px;
 
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -55,6 +59,7 @@ a {
 }
 
 a:hover {
+  color: var(--color-primary-hover);
   text-decoration: underline;
 }
 
@@ -69,4 +74,22 @@ textarea {
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

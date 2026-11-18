@@ -5,9 +5,9 @@ export const STATUS_META = {
 };
 
 export const PRIORITY_META = {
-  LOW: { label: 'Low', tone: 'neutral' },
-  MEDIUM: { label: 'Medium', tone: 'warning' },
-  HIGH: { label: 'High', tone: 'danger' },
+  LOW: { label: 'Low' },
+  MEDIUM: { label: 'Medium' },
+  HIGH: { label: 'High' },
 };
 
 const toOptions = (meta) =>

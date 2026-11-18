@@ -14,6 +14,7 @@ export default function CreateTaskPage() {
 
   return (
     <AppTemplate
+      eyebrow="Tasks"
       title="New task"
       subtitle="Fill in the details below."
       back={<Link to="/tasks">Back to tasks</Link>}

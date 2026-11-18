@@ -3,17 +3,17 @@
 }
 
 .app-layout__main {
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 36px 24px 64px;
+  padding: 40px 24px 64px;
 }
 
 .app-layout__main--narrow {
-  max-width: 720px;
+  max-width: 760px;
 }
 
 .app-layout__back {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   font-size: 14px;
 }
 
@@ -21,6 +21,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 28px;
 }
@@ -28,7 +29,7 @@
 .app-layout__titles {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -41,11 +42,6 @@
 
 @media (max-width: 560px) {
   .app-layout__main {
-    padding: 24px 16px 48px;
-  }
-
-  .app-layout__header {
-    flex-direction: column;
-    align-items: stretch;
+    padding: 28px 16px 48px;
   }
 }

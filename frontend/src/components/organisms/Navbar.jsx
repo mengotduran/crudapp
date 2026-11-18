@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Avatar from '../atoms/Avatar';
 import Button from '../atoms/Button';
 import './Navbar.css';
 
@@ -19,7 +20,10 @@ export default function Navbar() {
           Taskboard
         </Link>
         <div className="navbar__user">
-          <span className="navbar__name">{user?.name}</span>
+          <div className="navbar__profile">
+            <Avatar name={user?.name} />
+            <span className="navbar__name">{user?.name}</span>
+          </div>
           <Button variant="secondary" size="sm" onClick={handleLogout}>
             Log out
           </Button>

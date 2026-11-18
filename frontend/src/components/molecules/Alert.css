@@ -1,18 +1,18 @@
 .alert {
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
+  padding: 12px 16px;
   border: 1px solid;
+  border-radius: var(--radius);
   font-size: 14px;
 }
 
 .alert--danger {
   background: var(--color-danger-soft);
-  border-color: #f5c2bd;
+  border-color: #eec3bd;
   color: var(--color-danger);
 }
 
 .alert--success {
   background: var(--color-success-soft);
-  border-color: #bfdfcb;
+  border-color: #bcd9c5;
   color: var(--color-success);
 }

@@ -5,11 +5,8 @@
   gap: 6px;
   padding: 56px 24px;
   text-align: center;
-  background: var(--color-surface);
-  border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius-lg);
 }
 
 .empty-state__action {
-  margin-top: 12px;
+  margin-top: 14px;
 }

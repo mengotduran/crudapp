@@ -5,7 +5,7 @@ import { useTask } from '../hooks/useTask';
 import { formatDate } from '../constants/task';
 import AppTemplate from '../components/templates/AppTemplate';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
-import { PriorityBadge, StatusBadge } from '../components/molecules/StatusBadge';
+import { PriorityLabel, StatusBadge } from '../components/molecules/StatusBadge';
 import Alert from '../components/molecules/Alert';
 import Button from '../components/atoms/Button';
 import Spinner from '../components/atoms/Spinner';
@@ -36,13 +36,14 @@ export default function TaskDetailPage() {
 
   return (
     <AppTemplate
+      eyebrow="Task details"
       title={task ? task.title : 'Task'}
       back={<Link to="/tasks">Back to tasks</Link>}
       narrow
       actions={
         task && (
           <>
-            <Button variant="secondary" onClick={() => setConfirming(true)}>
+            <Button variant="ghost-danger" onClick={() => setConfirming(true)}>
               Delete
             </Button>
             <Button to={`/tasks/${id}/edit`}>Edit</Button>
@@ -55,18 +56,29 @@ export default function TaskDetailPage() {
 
       {task && (
         <section className="task-detail">
-          <div className="task-detail__badges">
-            <StatusBadge status={task.status} />
-            <PriorityBadge priority={task.priority} />
+          <div className="task-detail__body">
+            <p className="eyebrow">Description</p>
+            {task.description ? (
+              <p className="task-detail__description">{task.description}</p>
+            ) : (
+              <Text muted className="task-detail__description">
+                No description provided.
+              </Text>
+            )}
           </div>
-          {task.description ? (
-            <p className="task-detail__description">{task.description}</p>
-          ) : (
-            <Text muted className="task-detail__description">
-              No description provided.
-            </Text>
-          )}
           <dl className="task-detail__meta">
+            <div>
+              <dt>Status</dt>
+              <dd>
+                <StatusBadge status={task.status} />
+              </dd>
+            </div>
+            <div>
+              <dt>Priority</dt>
+              <dd>
+                <PriorityLabel priority={task.priority} />
+              </dd>
+            </div>
             <div>
               <dt>Due date</dt>
               <dd>{formatDate(task.dueDate) || 'Not set'}</dd>
