@@ -2,6 +2,11 @@
 
 A full stack task manager built with Node.js, React and PostgreSQL.
 
+**Live demo:** https://crudapp-black.vercel.app
+**API:** https://crudapp-xp2l.onrender.com/api
+
+> The backend runs on Render's free plan and sleeps when idle, so the first request can take up to a minute.
+
 - **Backend:** Node.js, Express, Prisma ORM, JWT authentication (MVC architecture)
 - **Frontend:** React, Vite, React Router (atomic component design, page segregation)
 - **Database:** PostgreSQL (Prisma Postgres)
@@ -53,6 +58,14 @@ Protected routes expect an `Authorization: Bearer <token>` header.
 ## Running locally
 
 Requirements: Node.js 20+ and a PostgreSQL database.
+
+A local database can be started with Docker:
+
+```bash
+docker run -d --name crudapp-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=crudapp -p 5544:5432 postgres:16-alpine
+```
+
+Then set `DATABASE_URL="postgresql://postgres:postgres@localhost:5544/crudapp"` in `backend/.env`.
 
 ```bash
 # backend
