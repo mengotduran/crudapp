@@ -1,0 +1,34 @@
+.heading {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.heading--1 {
+  font-size: 26px;
+}
+
+.heading--2 {
+  font-size: 20px;
+}
+
+.heading--3 {
+  font-size: 16px;
+}
+
+.text {
+  margin: 0;
+}
+
+.text--sm {
+  font-size: 13px;
+}
+
+.text--md {
+  font-size: 15px;
+}
+
+.text--muted {
+  color: var(--color-text-muted);
+}
